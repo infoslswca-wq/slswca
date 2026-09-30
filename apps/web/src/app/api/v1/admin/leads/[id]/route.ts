@@ -1,3 +1,4 @@
+import { log } from "@/lib/observability";
 import { z } from "zod";
 import { requireAdminApi, setLeadHandled } from "@/lib/admin";
 import { fail, ok, originAllowed, readJson } from "@/lib/http";
@@ -18,7 +19,7 @@ export async function PATCH(req: Request, ctx: RouteContext<"/api/v1/admin/leads
     const found = await setLeadHandled(r.a.db, id, body.data.handled);
     return found ? ok({ id, handled: body.data.handled }) : fail(404, "not_found", "Lead not found.");
   } catch (e) {
-    console.error("[admin.leads] update failed", { id, err: (e as Error).message });
+    log("error", "admin.leads", { msg: "update failed", id, err: (e as Error).message });
     return fail(502, "update_failed", "Couldn't update the lead.");
   }
 }

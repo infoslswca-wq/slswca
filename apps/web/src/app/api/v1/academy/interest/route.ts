@@ -1,3 +1,4 @@
+import { log } from "@/lib/observability";
 import { AcademyInterestInput } from "@slswca/core/schemas";
 import { deliverAcademyInterest } from "@/lib/deliver";
 import { BAD_JSON, TOO_LARGE, clientIp, fail, ok, originAllowed, readJson } from "@/lib/http";
@@ -8,7 +9,7 @@ export async function POST(req: Request) {
   if (!req.headers.get("content-type")?.includes("application/json"))
     return fail(415, "unsupported_media_type", "Send JSON.");
 
-  const rl = rateLimit(`academy:${clientIp(req)}`, 5, 10 * 60_000);
+  const rl = await rateLimit(`academy:${clientIp(req)}`, 5, 10 * 60_000);
   if (!rl.ok)
     return fail(429, "rate_limited", "Too many submissions. Please try again later.", undefined, {
       "Retry-After": String(Math.ceil((rl.reset - Date.now()) / 1000)),
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
   try {
     await deliverAcademyInterest({ ...parsed.data, id, receivedAt: new Date().toISOString() });
   } catch (e) {
-    console.error("[academy.interest] delivery failed", { id, err: (e as Error).message });
+    log("error", "academy.interest", { msg: "delivery failed", id, err: (e as Error).message });
     return fail(502, "delivery_failed", "We couldn't record your interest right now. Please try again, or message us on Instagram.");
   }
   return ok({ id }, 201);

@@ -1,3 +1,4 @@
+import { log } from "@/lib/observability";
 import { fail, ok } from "@/lib/http";
 import { payhereConfig, verifyNotify } from "@/lib/payhere";
 import { applyPayHereNotify } from "@/lib/payments";
@@ -16,17 +17,17 @@ export async function POST(req: Request) {
   const p = Object.fromEntries(new URLSearchParams(text));
 
   if (!verifyNotify(cfg, p)) {
-    console.warn("[payhere.notify] bad signature", { order: p.order_id?.slice(0, 50) });
+    log("warn", "payhere.notify", { msg: "bad signature", order: p.order_id?.slice(0, 50) });
     return fail(400, "bad_signature", "Invalid signature.");
   }
 
   try {
     const outcome = await applyPayHereNotify(p);
     if (outcome === "amount_mismatch" || outcome === "not_found")
-      console.error("[payhere.notify] rejected", { order: p.order_id, outcome });
+      log("error", "payhere.notify", { msg: "rejected", order: p.order_id, outcome });
     return ok({ outcome });
   } catch (e) {
-    console.error("[payhere.notify] failed", { order: p.order_id, err: (e as Error).message });
+    log("error", "payhere.notify", { msg: "failed", order: p.order_id, err: (e as Error).message });
     return fail(500, "notify_failed", "Try again."); // PayHere will retry
   }
 }

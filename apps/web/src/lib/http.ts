@@ -6,14 +6,17 @@ export const ok = <T>(data: T, status = 200) => NextResponse.json<ApiOk<T>>({ ok
 export const fail = (status: number, code: string, message: string, fields?: Record<string, string>, headers?: HeadersInit) =>
   NextResponse.json<ApiErr>({ ok: false, error: { code, message, ...(fields && { fields }) } }, { status, headers });
 
+/**
+ * Client IP for rate limiting. Only headers set by the platform in front of us
+ * can be trusted; anything else is attacker-controlled and would let a bot
+ * dodge limits by sending a new fake IP each request.
+ *  - TRUSTED_IP_HEADER=cf-connecting-ip   when behind Cloudflare
+ *  - default: x-real-ip (Vercel overwrites it), then the first x-forwarded-for hop
+ */
 export function clientIp(req: Request) {
-  // Trust the first hop only behind a known proxy (Vercel / Cloudflare set these).
-  return (
-    req.headers.get("cf-connecting-ip") ??
-    req.headers.get("x-real-ip") ??
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    "unknown"
-  );
+  const trusted = process.env.TRUSTED_IP_HEADER?.toLowerCase();
+  if (trusted) return req.headers.get(trusted)?.trim() || "unknown";
+  return req.headers.get("x-real-ip")?.trim() || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
 }
 
 /**

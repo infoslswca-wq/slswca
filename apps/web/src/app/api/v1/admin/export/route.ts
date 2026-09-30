@@ -1,3 +1,4 @@
+import { log } from "@/lib/observability";
 import { listContributions, listLeads, listMembers, requireAdminApi } from "@/lib/admin";
 import { toCsv } from "@/lib/csv";
 import { fail } from "@/lib/http";
@@ -19,7 +20,7 @@ export async function GET(req: Request) {
 
   const rows =
     type === "leads" ? await listLeads(r.a.db) : type === "contributions" ? await listContributions(r.a.db) : await listMembers(r.a.db);
-  console.info("[admin.export]", { type, by: r.a.user.id, rows: rows.length }); // audit trail for PII exports
+  log("info", "admin.export", { type, by: r.a.user.id, rows: rows.length }); // audit trail for PII exports
 
   const date = new Date().toISOString().slice(0, 10);
   return new Response(toCsv(rows as unknown as Record<string, unknown>[], [...COLUMNS[type]]), {

@@ -1,4 +1,5 @@
 import "server-only";
+import { log } from "./observability";
 import type { AcademyInterestInput } from "@slswca/core/schemas";
 import { supabaseAdmin } from "./supabase/admin";
 
@@ -16,11 +17,11 @@ export async function deliverAcademyInterest(data: Lead) {
     const notified = await notifyLead(data);
     if (!stored && !notified) {
       if (process.env.NODE_ENV === "production") throw new Error("no delivery channel configured");
-      console.info("[academy.interest] (no delivery configured)", { id: data.id, pathway: data.pathway });
+      log("info", "academy.interest", { msg: "(no delivery configured)", id: data.id, pathway: data.pathway });
     }
   } catch (e) {
     if (!stored) throw e;
-    console.error("[academy.interest] notify failed (lead is stored)", { id: data.id, err: (e as Error).message });
+    log("error", "academy.interest", { msg: "notify failed (lead is stored)", id: data.id, err: (e as Error).message });
   }
 }
 

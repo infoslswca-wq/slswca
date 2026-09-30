@@ -14,6 +14,7 @@ apps/mobile       (planned) Expo + Expo Router, consuming tokens/core + /api/v1
 ```bash
 npm install
 npm run dev        # http://localhost:3000
+npm run check      # every gate: typecheck, lint, tests, DB/RLS tests, build (--fast skips build)
 npm test           # vitest (core + web API)
 npm run typecheck && npm run lint && npm run build
 ./scripts/test-db.sh   # migrations + RLS tests on local Postgres (no Docker needed)

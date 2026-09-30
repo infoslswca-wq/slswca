@@ -1,3 +1,4 @@
+import { log } from "@/lib/observability";
 import { ContributionInput, type CheckoutSession } from "@slswca/core/schemas";
 import { funds } from "@slswca/core/content";
 import { BAD_JSON, TOO_LARGE, clientIp, fail, ok, originAllowed, readJson } from "@/lib/http";
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
   if (!originAllowed(req)) return fail(403, "forbidden_origin", "Request origin not allowed.");
   if (!req.headers.get("content-type")?.includes("application/json")) return fail(415, "unsupported_media_type", "Send JSON.");
 
-  const rl = rateLimit(`contrib:${clientIp(req)}`, 10, 10 * 60_000);
+  const rl = await rateLimit(`contrib:${clientIp(req)}`, 10, 10 * 60_000);
   if (!rl.ok) return fail(429, "rate_limited", "Too many attempts. Please try again later.");
 
   const body = await readJson(req);
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
     await createContribution(d, orderId, member?.user.id ?? null);
   } catch (e) {
     if (e instanceof NotConfigured) return fail(503, "payments_unavailable", "Online contributions aren't open yet. Please check back soon.");
-    console.error("[contributions] create failed", { orderId, err: (e as Error).message });
+    log("error", "contributions", { msg: "create failed", orderId, err: (e as Error).message });
     return fail(502, "create_failed", "We couldn't start your contribution. Please try again.");
   }
 

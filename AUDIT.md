@@ -47,15 +47,15 @@ Status: ✅ done in this repo · 🔜 next up · 🧑‍⚖️ needs a decision 
 |---|---|---|
 | S1 | Security headers: CSP, HSTS (preload), X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy, COOP; `x-powered-by` removed | ✅ `next.config.ts` |
 | S2 | API hardening: same-origin check (CSRF), JSON-only, 16 KB body cap, per-IP rate limit, zod validation, honeypot, `no-store` | ✅ tested (`route.test.ts`) |
-| S3 | The rate limiter is in-memory, so it only works per instance | 🔜 swap for Upstash Redis when deploying to serverless |
+| S3 | The rate limiter was in-memory (per instance) and trusted a spoofable `cf-connecting-ip` header | ✅ shared Upstash Redis limiter (fails open to memory), trusted-IP header is explicit via `TRUSTED_IP_HEADER` |
 | S4 | CSP uses `'unsafe-inline'` for scripts so pages can stay static | 🔜 move to nonce CSP when auth/accounts ship |
 | S5 | Secrets live only in env vars; `.env*` is git-ignored; `.env.example` is documented | ✅ |
 | S6 | Privacy notice (Sri Lanka PDPA No. 9 of 2022) and consent checkbox | ✅ draft. 🧑‍⚖️ legal/committee review |
 | S7 | Dependency audit: 0 vulnerabilities (bumped sharp/vitest) | ✅; 🔜 Dependabot + CI |
 | S8 | SEO: per-page metadata, canonical URLs, sitemap, robots, OG image, `SportsOrganization` JSON-LD | ✅ |
 | S9 | Fonts self-hosted via `next/font` (no Google request at runtime, CSP `font-src 'self'`) | ✅ |
-| S10 | CI (typecheck, lint, test, build) on every PR | 🔜 |
-| S11 | Error monitoring and uptime checks (Sentry / Better Stack) | 🔜 |
+| S10 | CI (typecheck, lint, test, build) on every PR | ✅ local `npm run check` (all gates + DB tests); 🔜 wire into CI once the repo has a remote |
+| S11 | Error monitoring and uptime checks | ✅ structured JSON logs, `onRequestError` → Slack/Discord webhook (PII-scrubbed, deduped), friendly error page; `/api/v1/health` for uptime pings. 🔜 Sentry if volume grows |
 | S12 | Analytics: privacy-friendly and cookieless (Plausible / Vercel Analytics) | 🧑‍⚖️ |
 
 ## 4. Mobile-app readiness (built in from day one)

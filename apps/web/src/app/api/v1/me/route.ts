@@ -1,3 +1,4 @@
+import { log } from "@/lib/observability";
 import { DeleteAccountInput, ProfileUpdate, type Me } from "@slswca/core/schemas";
 import { BAD_JSON, TOO_LARGE, fail, ok, originAllowed, readJson } from "@/lib/http";
 import { UnknownClub, loadMe, updateProfile } from "@/lib/me";
@@ -20,7 +21,7 @@ export async function GET(req: Request) {
   try {
     return ok<Me>(await loadMe(a.db, a.user));
   } catch (e) {
-    console.error("[me] load failed", { err: (e as Error).message });
+    log("error", "me", { msg: "load failed", err: (e as Error).message });
     return fail(502, "load_failed", "Couldn't load your account.");
   }
 }
@@ -42,7 +43,7 @@ export async function PATCH(req: Request) {
     return ok(await loadMe(a.db, a.user));
   } catch (e) {
     if (e instanceof UnknownClub) return fail(422, "validation_failed", "Unknown club.", { clubSlug: "Pick a club from the list." });
-    console.error("[me] update failed", { err: (e as Error).message });
+    log("error", "me", { msg: "update failed", err: (e as Error).message });
     return fail(502, "update_failed", "Couldn't save your profile.");
   }
 }
@@ -58,7 +59,7 @@ export async function DELETE(req: Request) {
   if (!admin) return fail(503, "unavailable", "Account deletion is temporarily unavailable.");
   const { error } = await admin.auth.admin.deleteUser(a.user.id);
   if (error) {
-    console.error("[me] delete failed", { err: error.message });
+    log("error", "me", { msg: "delete failed", err: error.message });
     return fail(502, "delete_failed", "Couldn't delete your account. Please contact us.");
   }
   return ok({ deleted: true });
