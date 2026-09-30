@@ -31,7 +31,7 @@ export function SiteNav() {
           <Image src="/logo-light.png" alt="" width={1891} height={441} priority className="h-8 w-auto nav:h-9" />
         </Link>
 
-        <ul className="hidden items-center gap-7 text-sm font-semibold tracking-[0.04em] uppercase nav:flex">
+        <ul className="hidden items-center gap-7 text-sm font-semibold tracking-[0.04em] whitespace-nowrap uppercase menu:flex">
           {site.nav.map((l) => (
             <li key={l.href}>
               <Link
@@ -56,7 +56,7 @@ export function SiteNav() {
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label={open ? "Close menu" : "Open menu"}
-          className="grid size-11 cursor-pointer place-items-center border border-line-strong text-xl leading-none text-text nav:hidden"
+          className="grid size-11 cursor-pointer place-items-center border border-line-strong text-xl leading-none text-text menu:hidden"
         >
           <span aria-hidden>{open ? "✕" : "☰"}</span>
         </button>
@@ -64,7 +64,7 @@ export function SiteNav() {
         <ul
           id="mobile-menu"
           hidden={!open}
-          className="absolute inset-x-0 top-full z-60 flex flex-col border-b border-line bg-bg nav:hidden"
+          className="absolute inset-x-0 top-full z-60 flex flex-col border-b border-line bg-bg menu:hidden"
         >
           {[...site.nav, { href: "/#join", label: "Join us" }].map((l) => (
             <li key={l.href}>

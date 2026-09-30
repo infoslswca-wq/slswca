@@ -75,10 +75,13 @@ Status: ✅ done in this repo · 🔜 next up · 🧑‍⚖️ needs a decision 
 | R1 | Real photography: pick 10–15 images from the BOC/workshop archive → `public/photos`, fill the `ImageSlot`s | client → dev | 🧑‍⚖️ |
 | R2 | Confirm partner names, logos and roles; hide unconfirmed ones | client → dev | 🧑‍⚖️ |
 | R3 | Club directory: city, instagram, training spot → `/clubs/[slug]` pages | client → dev | 🧑‍⚖️ |
-| R4 | **Backend choice** (needed before accounts, registration, booking, payments). Options: Supabase (Postgres + auth + storage, good Expo SDK) or Postgres + Drizzle + Auth.js | client decision | 🧑‍⚖️ |
+| R4 | Backend: **Supabase** (decided 2026-09-30). Schema + RLS for members, clubs, events, registrations, payments, contributions and Academy leads, tested on local Postgres (`scripts/test-db.sh`). Academy leads are stored in Supabase. | dev | ✅ code · 🧑‍⚖️ create the Supabase project + keys |
 | R5 | Events as data (CMS/DB), with upcoming events and registration | dev | after R4 |
 | R6 | Migrate WordPress galleries → `/events/[slug]` with image galleries, 301s from old URLs | dev | 🔜 |
 | R7 | Deploy: Vercel (or Cloudflare) + DNS cutover plan, form delivery env (Resend or webhook), CI | dev + client | 🔜 |
 | R8 | i18n (Sinhala / Tamil) | client decision | 🧑‍⚖️ |
-| R9 | Payments provider: **PayHere** (local cards, LKR, eZ Cash) vs Stripe (limited LK support) | client decision | 🧑‍⚖️ |
+| R9 | Payments: **PayHere** (decided 2026-09-30). Signed checkout, verified notify webhook (signature + amount match + no status downgrade), `/contribute` one-off/monthly page, thanks page. | dev | ✅ code · 🧑‍⚖️ PayHere sandbox merchant account, then live approval |
+| R9b | End-to-end PayHere sandbox test (needs a public notify URL: deploy preview or tunnel) | dev | 🔜 after sandbox keys |
+| R11 | Member accounts: Supabase Auth (email OTP / Google) on web + app, profile page, "my registrations" | dev | 🔜 |
+| R12 | Admin view for committee: Academy leads, contributions, events | dev | 🔜 |
 | R10 | Mobile app: Expo scaffold in `apps/mobile`, 5-tab shell with mock data, reusing tokens + core | dev | after R4 |

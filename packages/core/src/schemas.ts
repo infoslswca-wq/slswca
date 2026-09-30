@@ -83,3 +83,37 @@ export type ApiErr = {
   error: { code: string; message: string; fields?: Record<string, string> };
 };
 export type ApiResult<T> = ApiOk<T> | ApiErr;
+
+// ---------------------------------------------------------------- contributions
+
+export const ContributionFund = z.enum(["general", "youth", "equipment", "team_travel"]);
+export type ContributionFund = z.infer<typeof ContributionFund>;
+
+export const CONTRIBUTION_PRESETS_LKR = [1000, 2500, 5000] as const;
+export const CONTRIBUTION_MIN_LKR = 100;
+export const CONTRIBUTION_MAX_LKR = 1_000_000;
+
+/** Contribution checkout request — web /contribute and the app's Contribute tab. */
+export const ContributionInput = z.object({
+  amount: z
+    .number({ error: "Enter an amount." })
+    .int("Whole rupees only.")
+    .min(CONTRIBUTION_MIN_LKR, `Minimum is LKR ${CONTRIBUTION_MIN_LKR}.`)
+    .max(CONTRIBUTION_MAX_LKR, "For large gifts please contact us directly."),
+  recurring: z.boolean().default(false),
+  fund: ContributionFund.default("general"),
+  firstName: z.string().trim().min(1, "Required.").max(60),
+  lastName: z.string().trim().min(1, "Required.").max(60),
+  email: z.email("Enter a valid email.").trim().max(254),
+  phone: phone,
+  anonymous: z.boolean().default(false),
+  consent: z.literal(true, { error: "Please agree to continue." }),
+});
+export type ContributionInput = z.infer<typeof ContributionInput>;
+
+/** What the server returns: a signed form the client POSTs to PayHere. */
+export type CheckoutSession = {
+  orderId: string;
+  action: string; // PayHere checkout URL
+  fields: Record<string, string>;
+};

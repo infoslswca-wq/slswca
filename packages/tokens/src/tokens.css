@@ -12,4 +12,5 @@
   --color-danger: #E5484D;
   --radius-none: 0;
   --breakpoint-nav: 900px;
+  --breakpoint-menu: 1120px; /* full nav needs ~1080px with 5 links */
 }

@@ -29,6 +29,7 @@ export const layout = {
   gutter: 40,
   gutterMobile: 24,
   breakpoint: 900,
+  menuBreakpoint: 1120,
   minHitTarget: 44,
 } as const;
 

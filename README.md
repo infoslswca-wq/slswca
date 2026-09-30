@@ -16,7 +16,10 @@ npm install
 npm run dev        # http://localhost:3000
 npm test           # vitest (core + web API)
 npm run typecheck && npm run lint && npm run build
+./scripts/test-db.sh   # migrations + RLS tests on local Postgres (no Docker needed)
 ```
+
+Database: `supabase/migrations` (apply with `supabase db push` once the project exists). Payments: PayHere; see `.env.example`.
 
 Copy `apps/web/.env.example` to `apps/web/.env.local` and configure one form-delivery channel (Resend or a webhook). In development, submissions are only logged.
 

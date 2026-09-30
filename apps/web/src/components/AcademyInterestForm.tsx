@@ -3,14 +3,10 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { AcademyInterestInput, Pathway, type ApiResult } from "@slswca/core/schemas";
+import { type Fields, errCls, inputCls, issuesToFields, labelCls } from "./form";
 import { Button, cn } from "./ui";
 
-type Fields = Partial<Record<string, string>>;
 const PATHS = Pathway.options;
-
-const inputCls =
-  "min-h-11 border border-line bg-bg px-3.5 py-[13px] text-sm font-normal tracking-normal text-text placeholder:text-faint focus:border-gold focus:outline-none aria-invalid:border-danger";
-const labelCls = "flex flex-col gap-[7px] text-xs font-bold tracking-[0.1em] text-muted uppercase";
 
 export function AcademyInterestForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -26,9 +22,7 @@ export function AcademyInterestForm() {
     const raw = { ...Object.fromEntries(fd), pathway, consent: fd.get("consent") === "on" };
     const parsed = AcademyInterestInput.safeParse(raw);
     if (!parsed.success) {
-      const f: Fields = {};
-      for (const i of parsed.error.issues) f[String(i.path[0] ?? "form")] ??= i.message;
-      setErrors(f);
+      setErrors(issuesToFields(parsed.error.issues));
       setFormError("");
       formRef.current?.querySelector<HTMLElement>("[aria-invalid=true]")?.focus();
       return;
@@ -72,7 +66,7 @@ export function AcademyInterestForm() {
   const err = (k: string) =>
     errors[k] ? { "aria-invalid": true as const, "aria-describedby": `${k}-err` } : {};
   const msg = (k: string) =>
-    errors[k] && <span id={`${k}-err`} className="text-xs font-semibold tracking-normal text-danger normal-case">{errors[k]}</span>;
+    errors[k] && <span id={`${k}-err`} className={errCls}>{errors[k]}</span>;
 
   return (
     <form

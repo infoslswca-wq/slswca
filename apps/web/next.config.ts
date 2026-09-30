@@ -18,7 +18,8 @@ const csp = [
   "media-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",
-  "form-action 'self'",
+  // PayHere checkout is a top-level form POST to their domain.
+  "form-action 'self' https://www.payhere.lk https://sandbox.payhere.lk",
   "frame-ancestors 'none'",
   ...(isDev ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");

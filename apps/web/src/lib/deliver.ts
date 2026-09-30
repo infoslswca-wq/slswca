@@ -1,13 +1,48 @@
+import "server-only";
 import type { AcademyInterestInput } from "@slswca/core/schemas";
+import { supabaseAdmin } from "./supabase/admin";
+
+type Lead = AcademyInterestInput & { id: string; receivedAt: string };
 
 /**
- * Where submissions go. Pluggable until a backend is chosen:
- *  - RESEND_API_KEY + ACADEMY_INBOX  → email via Resend
- *  - FORM_WEBHOOK_URL                → POST JSON (Google Apps Script, Make, Zapier, Slack…)
- *  - neither, in development         → logged to the server console
- *  - neither, in production          → error (fail loudly rather than drop leads)
+ * Supabase (`academy_interest`) is the system of record when configured;
+ * email/webhook is then a best-effort notification. Without Supabase, the
+ * notification channel must succeed. In production with neither configured,
+ * fail loudly rather than silently drop leads.
  */
-export async function deliverAcademyInterest(data: AcademyInterestInput & { id: string; receivedAt: string }) {
+export async function deliverAcademyInterest(data: Lead) {
+  const stored = await storeLead(data);
+  try {
+    const notified = await notifyLead(data);
+    if (!stored && !notified) {
+      if (process.env.NODE_ENV === "production") throw new Error("no delivery channel configured");
+      console.info("[academy.interest] (no delivery configured)", { id: data.id, pathway: data.pathway });
+    }
+  } catch (e) {
+    if (!stored) throw e;
+    console.error("[academy.interest] notify failed (lead is stored)", { id: data.id, err: (e as Error).message });
+  }
+}
+
+async function storeLead(data: Lead) {
+  const db = supabaseAdmin();
+  if (!db) return false;
+  const { error } = await db.from("academy_interest").insert({
+    id: data.id,
+    name: data.name,
+    club: data.club || null,
+    email: data.email || null,
+    phone: data.phone || null,
+    pathway: data.pathway,
+    message: data.message || null,
+    consent_at: data.receivedAt,
+  });
+  if (error) throw new Error(`db ${error.code}`);
+  return true;
+}
+
+/** Returns true if a channel was configured and succeeded. */
+async function notifyLead(data: Lead) {
   const { RESEND_API_KEY, ACADEMY_INBOX, FORM_WEBHOOK_URL, FORM_WEBHOOK_SECRET, MAIL_FROM } = process.env;
 
   if (RESEND_API_KEY && ACADEMY_INBOX) {
@@ -34,7 +69,7 @@ export async function deliverAcademyInterest(data: AcademyInterestInput & { id: 
       signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) throw new Error(`resend ${res.status}`);
-    return;
+    return true;
   }
 
   if (FORM_WEBHOOK_URL) {
@@ -45,12 +80,7 @@ export async function deliverAcademyInterest(data: AcademyInterestInput & { id: 
       signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) throw new Error(`webhook ${res.status}`);
-    return;
+    return true;
   }
-
-  if (process.env.NODE_ENV !== "production") {
-    console.info("[academy.interest] (no delivery configured)", { id: data.id, pathway: data.pathway });
-    return;
-  }
-  throw new Error("no delivery channel configured");
+  return false;
 }
