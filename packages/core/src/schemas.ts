@@ -150,10 +150,57 @@ export type Me = {
   coachTier: CoachTier | null;
   memberSince: string;
   contributions: { orderId: string; amount: number; recurring: boolean; status: string; fund: string; createdAt: string }[];
-  registrations: { eventTitle: string; startsAt: string | null; status: string; ticketCode: string | null }[];
+  registrations: { eventTitle: string; eventSlug: string | null; startsAt: string | null; status: string; ticketCode: string | null }[];
 };
 
 /** Short, human-readable member number derived from the account id. */
 export const memberNumber = (id: string) => `SL-${id.replace(/-/g, "").slice(0, 8).toUpperCase()}`;
 
 export const DeleteAccountInput = z.object({ confirm: z.literal("DELETE", { error: 'Type DELETE to confirm.' }) });
+
+// ---------------------------------------------------------------- event registration
+
+/** Registration request (web form and the app's registration flow). */
+export const RegistrationInput = z.object({
+  fullName: z.string().trim().min(2, "Please enter your full name.").max(120),
+  phone: phone,
+  category: z.string().trim().max(60).optional().or(z.literal("")),
+  clubSlug: Slug.optional().or(z.literal("")),
+  emergencyName: z.string().trim().min(2, "Who should we call in an emergency?").max(120),
+  emergencyPhone: phone,
+  waiver: z.literal(true, { error: "Please accept the waiver to register." }),
+  adultOrGuardian: z.literal(true, { error: "Please confirm this." }),
+});
+export type RegistrationInput = z.infer<typeof RegistrationInput>;
+
+/** Stable error codes from the register_for_event DB function. */
+export const REGISTRATION_ERRORS: Record<string, string> = {
+  REG_NOT_FOUND: "This event isn't open for registration.",
+  REG_NOT_OPEN: "Registration hasn't opened yet.",
+  REG_CLOSED: "Registration has closed.",
+  REG_FULL: "Sorry, this event is full.",
+  REG_ALREADY_REGISTERED: "You're already registered for this event.",
+  REG_BAD_CATEGORY: "Pick a category from the list.",
+  REG_CONSENT_REQUIRED: "Please confirm you're 18+ or have a guardian's consent.",
+};
+
+export type UpcomingEvent = {
+  slug: string;
+  kind: "competition" | "workshop";
+  title: string;
+  tag: string | null;
+  body: string;
+  venue: string | null;
+  startsAt: string | null;
+  endsAt: string | null;
+  feeLkr: number;
+  capacity: number | null;
+  categories: string[];
+  registrationOpensAt: string | null;
+  registrationClosesAt: string | null;
+  waiverVersion: string;
+};
+
+export type RegistrationResult =
+  | { status: "confirmed"; ticketCode: string }
+  | { status: "pending"; ticketCode: string; checkout: CheckoutSession };

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { clubs, funds, tiers } from "@slswca/core/content";
 import { memberNumber } from "@slswca/core/schemas";
@@ -65,7 +66,7 @@ export default async function AccountPage() {
           <ul className="flex flex-col border border-line">
             {me.registrations.map((r) => (
               <li key={r.ticketCode ?? r.eventTitle} className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 last:border-b-0">
-                <div><p className="m-0 font-semibold">{r.eventTitle}</p>{r.startsAt && <p className="m-0 text-[13px] text-muted">{date(r.startsAt)}</p>}</div>
+                <div><p className="m-0 font-semibold">{r.ticketCode ? <Link href={`/account/tickets/${r.ticketCode}`} className="hover:text-gold">{r.eventTitle} →</Link> : r.eventTitle}</p>{r.startsAt && <p className="m-0 text-[13px] text-muted">{date(r.startsAt)}</p>}</div>
                 <span className={`text-xs font-bold tracking-[0.1em] uppercase ${statusCls[r.status] ?? "text-faint"}`}>{r.status}</span>
               </li>
             ))}

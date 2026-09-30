@@ -18,6 +18,7 @@ export default function PrivacyPage() {
           <h2>What we collect</h2>
           <p>When you register interest in the Academy we collect your name, club, email, phone/WhatsApp number, chosen pathway and any message you write.</p>
           <p>If you create a member account we store your email, name, phone and club, plus your event registrations and contributions, so we can show them on your account and membership card.</p>
+          <p>When you register for an event we also store your category, club and an emergency contact&apos;s name and phone, which only the organising committee can see and which is used only for safety on the day.</p>
           <p>When you contribute we collect your name, email, phone, amount, chosen fund and whether it&apos;s monthly. Card payments are handled entirely by PayHere (PayHere (Pvt) Ltd, Sri Lanka); we never see or store your card details.</p>
           <h2>Why</h2>
           <p>To contact you about Academy programme intakes, officiating courses and selection trials, and to process contributions and send receipts. We don&apos;t sell your data or use it for advertising.</p>

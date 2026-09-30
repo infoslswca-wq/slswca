@@ -7,6 +7,7 @@ vi.mock("@/lib/admin", () => ({
   listLeads: vi.fn(async () => [{ name: "=cmd", pathway: "Coaching", createdAt: "2026-10-01" }]),
   listContributions: vi.fn(async () => []),
   listMembers: vi.fn(async () => []),
+  listRegistrations: vi.fn(async () => []),
 }));
 import { setLeadHandled } from "@/lib/admin";
 import { PATCH } from "./leads/[id]/route";

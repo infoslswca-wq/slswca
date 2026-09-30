@@ -16,7 +16,7 @@ export async function loadMe(db: SupabaseClient, user: User): Promise<Me> {
       .limit(50),
     db
       .from("event_registrations")
-      .select("status, ticket_code, created_at, event:events(title, starts_at)")
+      .select("status, ticket_code, created_at, event:events(title, slug, starts_at)")
       .order("created_at", { ascending: false })
       .limit(50),
   ]);
@@ -39,8 +39,8 @@ export async function loadMe(db: SupabaseClient, user: User): Promise<Me> {
         : [];
     }),
     registrations: (regs.data ?? []).map((r) => {
-      const ev = one(r.event as One<{ title: string; starts_at: string | null }>);
-      return { eventTitle: ev?.title ?? "Event", startsAt: ev?.starts_at ?? null, status: r.status, ticketCode: r.ticket_code };
+      const ev = one(r.event as One<{ title: string; slug: string; starts_at: string | null }>);
+      return { eventTitle: ev?.title ?? "Event", eventSlug: ev?.slug ?? null, startsAt: ev?.starts_at ?? null, status: r.status, ticketCode: r.ticket_code };
     }),
   };
 }

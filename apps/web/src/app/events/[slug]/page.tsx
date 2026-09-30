@@ -3,13 +3,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { allEvents, eventBySlug, site } from "@slswca/core/content";
 import { InstagramEmbed } from "@/components/InstagramEmbed";
+import { UpcomingEventDetail } from "@/components/UpcomingEventDetail";
+import { availability, getDbEvent, registrationState } from "@/lib/events";
 import { ButtonLink, Container, Eyebrow } from "@/components/ui";
 
-export const dynamicParams = false;
+// Archive events are prebuilt; upcoming ones come from the database (refreshed each minute).
+export const dynamicParams = true;
+export const revalidate = 60;
 export const generateStaticParams = () => allEvents.map((e) => ({ slug: e.slug }));
 
 export async function generateMetadata({ params }: PageProps<"/events/[slug]">): Promise<Metadata> {
-  const e = eventBySlug((await params).slug);
+  const slug = (await params).slug;
+  const e = eventBySlug(slug) ?? (await getDbEvent(slug));
   if (!e) return {};
   return { title: e.title, description: e.body.slice(0, 160), alternates: { canonical: `/events/${e.slug}` } };
 }
@@ -17,8 +22,15 @@ export async function generateMetadata({ params }: PageProps<"/events/[slug]">):
 const fmt = (d: string) => new Date(d).toLocaleDateString("en-LK", { day: "numeric", month: "long", year: "numeric" });
 
 export default async function EventPage({ params }: PageProps<"/events/[slug]">) {
-  const e = eventBySlug((await params).slug);
-  if (!e) notFound();
+  const slug = (await params).slug;
+  const e = eventBySlug(slug);
+  if (!e) {
+    const db = await getDbEvent(slug);
+    if (!db) notFound();
+    const avail = await availability(slug);
+    const left = avail?.capacity != null ? Math.max(0, avail.capacity - avail.taken) : null;
+    return <UpcomingEventDetail e={db} state={registrationState(db, avail)} spotsLeft={left} />;
+  }
   const siblings = allEvents.filter((x) => x.kind === e.kind);
   const i = siblings.indexOf(e);
   const [newer, older] = [siblings[i - 1], siblings[i + 1]];

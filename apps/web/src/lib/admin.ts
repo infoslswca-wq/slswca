@@ -102,3 +102,32 @@ export async function listMembers(db: SupabaseClient): Promise<AdminMember[]> {
     club: one(m.club as One<{ name: string }>)?.name ?? null, role: m.role, coachTier: m.coach_tier, since: m.created_at,
   }));
 }
+
+export type AdminRegistration = {
+  createdAt: string; event: string; eventSlug: string; athlete: string | null; phone: string | null; category: string | null;
+  club: string | null; status: string; emergencyName: string | null; emergencyPhone: string | null; ticketCode: string | null;
+};
+
+/** All registrations (admin RLS), newest first. Athlete names come from profiles in a second query. */
+export async function listRegistrations(db: SupabaseClient, eventSlug?: string): Promise<AdminRegistration[]> {
+  let q = db
+    .from("event_registrations")
+    .select("created_at, user_id, category, status, ticket_code, emergency_contact_name, emergency_contact_phone, event:events!inner(title, slug), club:clubs(name)")
+    .order("created_at", { ascending: false })
+    .limit(2000);
+  if (eventSlug) q = q.eq("event.slug", eventSlug);
+  const { data, error } = await q;
+  if (error) throw new Error(`db ${error.code}`);
+  const ids = [...new Set((data ?? []).map((r) => r.user_id as string))];
+  const { data: profs } = ids.length ? await db.from("profiles").select("id, full_name, phone").in("id", ids) : { data: [] };
+  const byId = new Map((profs ?? []).map((p) => [p.id as string, p]));
+  return (data ?? []).map((r) => {
+    const ev = one(r.event as One<{ title: string; slug: string }>);
+    const p = byId.get(r.user_id as string);
+    return {
+      createdAt: r.created_at, event: ev?.title ?? "", eventSlug: ev?.slug ?? "", athlete: p?.full_name ?? null, phone: p?.phone ?? null,
+      category: r.category, club: one(r.club as One<{ name: string }>)?.name ?? null, status: r.status,
+      emergencyName: r.emergency_contact_name, emergencyPhone: r.emergency_contact_phone, ticketCode: r.ticket_code,
+    };
+  });
+}

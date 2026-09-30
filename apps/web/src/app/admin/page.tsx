@@ -5,13 +5,14 @@ import { funds } from "@slswca/core/content";
 import { Pathway } from "@slswca/core/schemas";
 import { LeadHandledToggle } from "@/components/LeadHandledToggle";
 import { Container, Display, Eyebrow, cn } from "@/components/ui";
-import { listContributions, listLeads, listMembers, requireAdminPage } from "@/lib/admin";
+import { listContributions, listLeads, listMembers, listRegistrations, requireAdminPage } from "@/lib/admin";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 const TABS = [
   { key: "leads", label: "Academy leads" },
+  { key: "registrations", label: "Registrations" },
   { key: "contributions", label: "Contributions" },
   { key: "members", label: "Members" },
 ] as const;
@@ -44,6 +45,8 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
     listContributions(admin.db),
     tab === "members" ? listMembers(admin.db) : Promise.resolve([]),
   ]);
+  const registrations = tab === "registrations" ? await listRegistrations(admin.db, typeof sp.event === "string" ? sp.event : undefined) : [];
+  const regEvents = [...new Map(registrations.map((r) => [r.eventSlug, r.event])).entries()];
   const openLeads = tab === "leads" && status === false && !pathway ? leads.length : (await listLeads(admin.db, { handled: false })).length;
   const paid = contributions.filter((c) => c.status === "success");
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
@@ -90,7 +93,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
             </li>
           ))}
         </ul>
-        <a href={`/api/v1/admin/export?type=${tab}`} className="mb-2 border border-line-strong px-4 py-2 text-xs font-bold tracking-[0.06em] uppercase hover:border-gold hover:text-gold">
+        <a href={`/api/v1/admin/export?type=${tab}${tab === "registrations" && typeof sp.event === "string" ? `&event=${encodeURIComponent(sp.event)}` : ""}`} className="mb-2 border border-line-strong px-4 py-2 text-xs font-bold tracking-[0.06em] uppercase hover:border-gold hover:text-gold">
           Export CSV
         </a>
       </nav>
@@ -123,6 +126,36 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
                       </td>
                       <td className={cn(td, "max-w-[360px] whitespace-pre-line text-muted")}>{l.message || "—"}</td>
                       <td className={td}><LeadHandledToggle id={l.id} handled={l.handled} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
+
+      {tab === "registrations" && (
+        <section className="flex flex-col gap-5">
+          {regEvents.length > 1 || sp.event ? (
+            <div className="flex flex-wrap gap-2">
+              <Chip href="/admin?tab=registrations" on={!sp.event}>All events</Chip>
+              {regEvents.map(([slug, title]) => <Chip key={slug} href={`/admin?tab=registrations&event=${slug}`} on={sp.event === slug}>{title}</Chip>)}
+            </div>
+          ) : null}
+          {registrations.length === 0 ? <p className="border border-dashed border-line-strong px-6 py-10 text-center text-sm text-muted">No registrations yet. Create events in Supabase → Table editor → events (status = published).</p> : (
+            <div className="overflow-x-auto border border-line">
+              <table className="w-full min-w-[1000px] border-collapse">
+                <thead className="bg-surface"><tr><th className={th}>Event</th><th className={th}>Athlete</th><th className={th}>Category</th><th className={th}>Club</th><th className={th}>Emergency contact</th><th className={th}>Status</th></tr></thead>
+                <tbody>
+                  {registrations.map((r) => (
+                    <tr key={r.ticketCode ?? `${r.eventSlug}-${r.createdAt}`} className={r.status === "cancelled" ? "opacity-50" : undefined}>
+                      <td className={td}><p className="m-0 font-semibold">{r.event}</p><p className="m-0 text-xs text-muted">{d(r.createdAt)}</p></td>
+                      <td className={td}><p className="m-0 font-semibold">{r.athlete ?? "—"}</p>{r.phone && <p className="m-0 text-xs text-muted">{r.phone}</p>}</td>
+                      <td className={td}>{r.category ?? "—"}</td>
+                      <td className={td}>{r.club ?? "Independent"}</td>
+                      <td className={td}>{r.emergencyName ?? "—"}{r.emergencyPhone && <p className="m-0 text-xs text-muted">{r.emergencyPhone}</p>}</td>
+                      <td className={cn(td, "text-xs font-bold tracking-[0.1em] uppercase", r.status === "confirmed" ? "text-gold" : r.status === "pending" ? "text-muted" : "text-danger")}>{r.status}</td>
                     </tr>
                   ))}
                 </tbody>

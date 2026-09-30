@@ -77,7 +77,8 @@ Status: ✅ done in this repo · 🔜 next up · 🧑‍⚖️ needs a decision 
 | R2 | Confirm partner names, logos and roles; hide unconfirmed ones | client → dev | 🧑‍⚖️ |
 | R3 | Club directory: city, instagram, training spot → `/clubs/[slug]` pages | client → dev | 🧑‍⚖️ |
 | R4 | Backend: **Supabase** (decided 2026-09-30). Schema + RLS for members, clubs, events, registrations, payments, contributions and Academy leads, tested on local Postgres (`scripts/test-db.sh`). Academy leads are stored in Supabase. | dev | ✅ code · 🧑‍⚖️ create the Supabase project + keys |
-| R5 | Events as data (CMS/DB), with upcoming events and registration | dev | after R4 |
+| R5 | Events in the DB with registration: upcoming list, event pages with spots left, sign-up (athlete, category, club, emergency contact, waiver + 18+/guardian consent), atomic capacity (row lock, 30-min hold for unpaid), PayHere for paid entries (payment confirms/cancels the registration via DB trigger), QR ticket page, self-cancel, admin registrations tab + CSV start lists | dev | ✅ code · 🧑‍⚖️ approve waiver text; events are created in Supabase Table editor for now |
+| R5b | Admin event editor + QR check-in scanner (web/app) | dev | 🔜 |
 | R6 | WordPress galleries → `/events/[slug]` (story, venue, clubs, Instagram media, SportsEvent JSON-LD, prev/next), legacy redirects kept in sync by test | dev | ✅ |
 | R6b | Real photo galleries: Instagram embeds only show what was posted; upload event photos to Supabase Storage for proper galleries + hero images | client → dev | 🧑‍⚖️ needs photos (R1) |
 | R7 | Deploy: Vercel (or Cloudflare) + DNS cutover plan, form delivery env (Resend or webhook), CI | dev + client | 🔜 |

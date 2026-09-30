@@ -9,7 +9,7 @@ export async function proxy(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) {
-    return /^\/(account|admin)/.test(request.nextUrl.pathname)
+    return isGated(request.nextUrl.pathname)
       ? NextResponse.redirect(new URL("/login", request.url))
       : NextResponse.next();
   }
@@ -28,7 +28,7 @@ export async function proxy(request: NextRequest) {
 
   const { data } = await supabase.auth.getUser();
 
-  if (!data.user && (request.nextUrl.pathname.startsWith("/account") || request.nextUrl.pathname.startsWith("/admin"))) {
+  if (!data.user && isGated(request.nextUrl.pathname)) {
     const to = new URL("/login", request.url);
     to.searchParams.set("next", request.nextUrl.pathname);
     return NextResponse.redirect(to);
@@ -39,6 +39,11 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+/** Pages that need a signed-in member. */
+function isGated(path: string) {
+  return /^\/(account|admin)(\/|$)/.test(path) || /^\/events\/[^/]+\/register$/.test(path);
+}
+
 export const config = {
-  matcher: ["/account/:path*", "/admin/:path*", "/login", "/api/v1/me", "/api/v1/admin/:path*"],
+  matcher: ["/account/:path*", "/admin/:path*", "/events/:slug/register", "/login", "/api/v1/me", "/api/v1/admin/:path*", "/api/v1/events/:slug/registrations", "/api/v1/tickets/:path*"],
 };

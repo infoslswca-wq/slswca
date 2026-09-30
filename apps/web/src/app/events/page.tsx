@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { battles, workshops } from "@slswca/core/content";
+import { UpcomingEventCard } from "@/components/UpcomingEventCard";
+import { listUpcoming } from "@/lib/events";
 import { ImageSlot } from "@/components/ImageSlot";
 import { PageHeader } from "@/components/PageHeader";
 import { Container, SectionHead, TextLink } from "@/components/ui";
@@ -10,12 +12,27 @@ export const metadata: Metadata = {
   alternates: { canonical: "/events" },
 };
 
-export default function EventsPage() {
+// Upcoming events come from the database; refresh the page at most once a minute.
+export const revalidate = 60;
+
+export default async function EventsPage() {
+  const upcoming = await listUpcoming();
   return (
     <>
       <PageHeader eyebrow="SLSWCA calendar" title="Events &" accent="Competitions">
         From the inaugural Battle of the Clubs to free community workshops across the island — this is where Sri Lankan calisthenics happens.
       </PageHeader>
+
+      {upcoming.length > 0 && (
+        <section id="upcoming" aria-labelledby="upcoming-h" className="border-t border-line bg-surface">
+          <Container className="flex flex-col gap-10 py-14">
+            <SectionHead title={<span id="upcoming-h">Coming</span>} accent="up" meta="Register now" />
+            <ul className="grid gap-6 sm:grid-cols-2 nav:grid-cols-3">
+              {upcoming.map((e) => <UpcomingEventCard key={e.slug} e={e} />)}
+            </ul>
+          </Container>
+        </section>
+      )}
 
       <section id="battles" aria-labelledby="battles-h" className="border-t border-line">
         <Container className="flex flex-col gap-10 py-14">
