@@ -117,3 +117,34 @@ export type CheckoutSession = {
   action: string; // PayHere checkout URL
   fields: Record<string, string>;
 };
+
+// ---------------------------------------------------------------- accounts
+
+export const OtpEmail = z.object({ email: z.email("Enter a valid email.").trim().toLowerCase().max(254) });
+export const OtpCode = z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code from your email.");
+
+/** Fields a member may change on their own profile (mirrors DB column grants). */
+export const ProfileUpdate = z.object({
+  fullName: z.string().trim().min(2, "Please enter your name.").max(120),
+  phone: phone.optional().or(z.literal("")),
+  clubSlug: Slug.optional().or(z.literal("")),
+});
+export type ProfileUpdate = z.infer<typeof ProfileUpdate>;
+
+export type Me = {
+  id: string;
+  email: string | null;
+  fullName: string | null;
+  phone: string | null;
+  club: { slug: string; name: string } | null;
+  role: "member" | "coach" | "admin";
+  coachTier: CoachTier | null;
+  memberSince: string;
+  contributions: { orderId: string; amount: number; recurring: boolean; status: string; fund: string; createdAt: string }[];
+  registrations: { eventTitle: string; startsAt: string | null; status: string; ticketCode: string | null }[];
+};
+
+/** Short, human-readable member number derived from the account id. */
+export const memberNumber = (id: string) => `SL-${id.replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+
+export const DeleteAccountInput = z.object({ confirm: z.literal("DELETE", { error: 'Type DELETE to confirm.' }) });

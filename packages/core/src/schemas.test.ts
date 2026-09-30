@@ -47,3 +47,19 @@ describe("tokens", () => {
     }
   });
 });
+
+import { ProfileUpdate, OtpCode, memberNumber } from "./schemas";
+describe("accounts", () => {
+  it("validates profile updates", () => {
+    expect(ProfileUpdate.safeParse({ fullName: "Nimal", phone: "", clubSlug: "soul-lifters" }).success).toBe(true);
+    expect(ProfileUpdate.safeParse({ fullName: "N" }).success).toBe(false);
+    expect(ProfileUpdate.safeParse({ fullName: "Nimal", clubSlug: "Bad Slug" }).success).toBe(false);
+  });
+  it("otp codes are 6 digits", () => {
+    expect(OtpCode.safeParse(" 123456 ").success).toBe(true);
+    expect(OtpCode.safeParse("12345a").success).toBe(false);
+  });
+  it("member numbers are stable", () => {
+    expect(memberNumber("0a1b2c3d-0000-0000-0000-000000000000")).toBe("SL-0A1B2C3D");
+  });
+});

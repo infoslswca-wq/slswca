@@ -4,6 +4,7 @@ import { BAD_JSON, TOO_LARGE, clientIp, fail, ok, originAllowed, readJson } from
 import { checkoutHash, checkoutUrl, formatAmount, newOrderId, payhereConfig } from "@/lib/payhere";
 import { NotConfigured, createContribution } from "@/lib/payments";
 import { rateLimit } from "@/lib/rate-limit";
+import { authenticate } from "@/lib/supabase/server";
 
 /** Creates a pending contribution and returns a signed PayHere checkout form. */
 export async function POST(req: Request) {
@@ -29,8 +30,9 @@ export async function POST(req: Request) {
 
   const d = parsed.data;
   const orderId = newOrderId("C");
+  const member = await authenticate(req).catch(() => null); // optional: link to account if signed in
   try {
-    await createContribution(d, orderId);
+    await createContribution(d, orderId, member?.user.id ?? null);
   } catch (e) {
     if (e instanceof NotConfigured) return fail(503, "payments_unavailable", "Online contributions aren't open yet. Please check back soon.");
     console.error("[contributions] create failed", { orderId, err: (e as Error).message });

@@ -8,13 +8,17 @@ const isDev = process.env.NODE_ENV === "development";
  * 'unsafe-inline' for script-src. We render no user-generated HTML, which is
  * what keeps this acceptable. Revisit (nonce + dynamic) when auth ships.
  */
+// Supabase Auth/REST is called from the browser (sign-in, session refresh).
+const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin : "";
+const supabaseWs = supabaseOrigin.replace(/^http/, "ws");
+
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  "connect-src 'self'",
+  `connect-src 'self' ${supabaseOrigin} ${supabaseWs}`.trim(),
   "media-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",

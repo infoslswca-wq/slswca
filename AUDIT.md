@@ -82,6 +82,7 @@ Status: ✅ done in this repo · 🔜 next up · 🧑‍⚖️ needs a decision 
 | R8 | i18n (Sinhala / Tamil) | client decision | 🧑‍⚖️ |
 | R9 | Payments: **PayHere** (decided 2026-09-30). Signed checkout, verified notify webhook (signature + amount match + no status downgrade), `/contribute` one-off/monthly page, thanks page. | dev | ✅ code · 🧑‍⚖️ PayHere sandbox merchant account, then live approval |
 | R9b | End-to-end PayHere sandbox test (needs a public notify URL: deploy preview or tunnel) | dev | 🔜 after sandbox keys |
-| R11 | Member accounts: Supabase Auth (email OTP / Google) on web + app, profile page, "my registrations" | dev | 🔜 |
+| R11 | Member accounts: email one-time code (+ optional Google), `/login`, `/account` (membership card, profile, registrations, contributions, sign out, self-service delete), `/api/v1/me` for web cookie **or** mobile Bearer token, CSRF rules, session refresh in `proxy.ts` | dev | ✅ code · 🧑‍⚖️ paste `supabase/templates/otp.html` into the hosted project's email templates |
+| R11b | Custom SMTP for auth emails (Supabase's built-in sender is rate-limited to a few emails/hour, fine for testing only). Resend works. | dev + client | 🔜 before launch |
 | R12 | Admin view for committee: Academy leads, contributions, events | dev | 🔜 |
 | R10 | Mobile app: Expo scaffold in `apps/mobile`, 5-tab shell with mock data, reusing tokens + core | dev | after R4 |

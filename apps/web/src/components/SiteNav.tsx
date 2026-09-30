@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { site } from "@slswca/core/content";
+import { supabaseBrowser } from "@/lib/supabase/browser";
 import { cn } from "./ui";
 
 export function SiteNav() {
@@ -21,6 +22,9 @@ export function SiteNav() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const signedIn = useSignedIn();
+  const account = signedIn === null ? null : signedIn ? { href: "/account", label: "Account" } : { href: "/login", label: "Sign in" };
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
@@ -43,6 +47,17 @@ export function SiteNav() {
               </Link>
             </li>
           ))}
+          {account && (
+            <li>
+              <Link
+                href={account.href}
+                aria-current={isActive(account.href) ? "page" : undefined}
+                className={cn("transition-colors", isActive(account.href) ? "text-text" : "text-muted hover:text-gold")}
+              >
+                {account.label}
+              </Link>
+            </li>
+          )}
           <li>
             <Link href="/#join" className="bg-gold px-5 py-2.5 font-bold tracking-[0.06em] text-bg transition-colors hover:bg-text">
               Join us
@@ -66,7 +81,7 @@ export function SiteNav() {
           hidden={!open}
           className="absolute inset-x-0 top-full z-60 flex flex-col border-b border-line bg-bg menu:hidden"
         >
-          {[...site.nav, { href: "/#join", label: "Join us" }].map((l) => (
+          {[...site.nav, ...(account ? [account] : []), { href: "/#join", label: "Join us" }].map((l) => (
             <li key={l.href}>
               <Link
                 href={l.href}
@@ -85,4 +100,17 @@ export function SiteNav() {
       </nav>
     </header>
   );
+}
+
+/** null = auth not configured (hide the link); otherwise whether a session exists. */
+function useSignedIn() {
+  const [state, setState] = useState<boolean | null>(null);
+  useEffect(() => {
+    const sb = supabaseBrowser();
+    if (!sb) return;
+    sb.auth.getSession().then(({ data }) => setState(Boolean(data.session)));
+    const { data } = sb.auth.onAuthStateChange((_e, session) => setState(Boolean(session)));
+    return () => data.subscription.unsubscribe();
+  }, []);
+  return state;
 }
