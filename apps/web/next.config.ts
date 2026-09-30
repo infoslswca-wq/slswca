@@ -57,6 +57,19 @@ const nextConfig: NextConfig = {
     // Preserve old WordPress URLs so existing links / SEO don't 404.
     return [
       { source: "/events-and-competitions", destination: "/events", permanent: true },
+      // Remaining WordPress pages (from slswca.com/wp-sitemap.xml, 2026-10).
+      { source: "/workshops", destination: "/events#workshops", permanent: true },
+      { source: "/gallery", destination: "/events", permanent: true },
+      { source: "/member-clubs", destination: "/#clubs", permanent: true },
+      { source: "/contact", destination: "/#join", permanent: true },
+      { source: "/about", destination: "/", permanent: true },
+      { source: "/blog", destination: "/events", permanent: true },
+      { source: "/2024/08/09/hello-world", destination: "/", permanent: true },
+      { source: "/author/:name*", destination: "/", permanent: true },
+      { source: "/category/:name*", destination: "/events", permanent: true },
+      { source: "/wp-admin/:path*", destination: "/", permanent: false },
+      { source: "/wp-login.php", destination: "/", permanent: false },
+      { source: "/feed", destination: "/events", permanent: true },
       ...Object.entries(legacyEventRedirects).map(([from, to]) => ({
         source: `/${from}`,
         destination: `/events/${to}`,
