@@ -1,0 +1,15 @@
+/* Generated from src/index.ts values — keep in sync (checked by tests). */
+@theme {
+  --color-bg: #131210;
+  --color-surface: #1C1A17;
+  --color-line: #2A2722;
+  --color-line-strong: #3A362F;
+  --color-text: #F5F1E8;
+  --color-muted: #A39E93;
+  --color-faint: #8A8478;
+  --color-gold: #F0A83B;
+  --color-maroon: #8D2A45;
+  --color-danger: #E5484D;
+  --radius-none: 0;
+  --breakpoint-nav: 900px;
+}
