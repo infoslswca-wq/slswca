@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { OtpCode, OtpEmail } from "@slswca/core/schemas";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 import { errCls, inputCls, labelCls } from "./form";
@@ -13,7 +13,12 @@ export function LoginForm({ next, google, linkError }: { next: string; google: b
   const [email, setEmail] = useState("");
   const [error, setError] = useState(linkError ? "That sign-in link has expired. Request a new code." : "");
   const [pending, setPending] = useState(false);
-  const [resentAt, setResentAt] = useState(0);
+  const [cooldown, setCooldown] = useState(false); // resend allowed again after 60s
+  useEffect(() => {
+    if (!cooldown) return;
+    const t = setTimeout(() => setCooldown(false), 60_000);
+    return () => clearTimeout(t);
+  }, [cooldown]);
 
   const sb = supabaseBrowser();
 
@@ -32,7 +37,7 @@ export function LoginForm({ next, google, linkError }: { next: string; google: b
       return;
     }
     setEmail(p.data.email);
-    setResentAt(Date.now());
+    setCooldown(true);
     setStep("code");
   }
 
@@ -94,11 +99,11 @@ export function LoginForm({ next, google, linkError }: { next: string; google: b
           </button>
           <button
             type="button"
-            disabled={pending || Date.now() - resentAt < 60_000}
+            disabled={pending || cooldown}
             className="cursor-pointer underline decoration-gold underline-offset-2 hover:text-text disabled:cursor-not-allowed disabled:no-underline disabled:opacity-50"
             onClick={() => sendCode()}
           >
-            Resend code
+            {cooldown ? "Resend code (wait 60s)" : "Resend code"}
           </button>
         </div>
       </form>

@@ -100,6 +100,13 @@ export default async function AccountPage() {
         )}
       </section>
 
+      {me.role === "admin" && (
+        <div className="flex flex-wrap items-center justify-between gap-4 border border-gold px-6 py-5">
+          <p className="m-0 text-sm text-muted">You have committee access.</p>
+          <ButtonLink href="/admin">Open admin</ButtonLink>
+        </div>
+      )}
+
       <AccountActions />
     </Container>
   );

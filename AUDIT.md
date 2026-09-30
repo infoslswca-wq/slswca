@@ -86,5 +86,5 @@ Status: ✅ done in this repo · 🔜 next up · 🧑‍⚖️ needs a decision 
 | R9b | End-to-end PayHere sandbox test (needs a public notify URL: deploy preview or tunnel) | dev | 🔜 after sandbox keys |
 | R11 | Member accounts: email one-time code (+ optional Google), `/login`, `/account` (membership card, profile, registrations, contributions, sign out, self-service delete), `/api/v1/me` for web cookie **or** mobile Bearer token, CSRF rules, session refresh in `proxy.ts` | dev | ✅ code · 🧑‍⚖️ paste `supabase/templates/otp.html` into the hosted project's email templates |
 | R11b | Custom SMTP for auth emails (Supabase's built-in sender is rate-limited to a few emails/hour, fine for testing only). Resend works. | dev + client | 🔜 before launch |
-| R12 | Admin view for committee: Academy leads, contributions, events | dev | 🔜 |
+| R12 | Committee admin view `/admin`: Academy leads (filter, mark handled with who/when stamp), contributions, members, summary stats, formula-safe CSV exports (logged). Non-admins get 404. DB: admins can only flip `handled`, never edit submissions. `scripts/make-admin.sh` bootstraps the first admin. | dev | ✅ code · 🧑‍⚖️ needs Supabase project to use |
 | R10 | Mobile app: Expo scaffold in `apps/mobile`, 5-tab shell with mock data, reusing tokens + core | dev | after R4 |

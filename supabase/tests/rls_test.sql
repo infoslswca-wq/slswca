@@ -53,6 +53,9 @@ do $$ begin
   begin update public.payments set status = 'success';
     raise exception 'ASSERT FAILED: bob marked payment success';
   exception when insufficient_privilege then null; end;
+  begin update public.academy_interest set handled = true;
+    if found then raise exception 'ASSERT FAILED: member marked a lead handled'; end if;
+  exception when insufficient_privilege then null; end;
   begin insert into public.events (slug, kind, title) values ('evil', 'workshop', 'x');
     raise exception 'ASSERT FAILED: member created event';
   exception when insufficient_privilege then null; end;
@@ -69,6 +72,17 @@ select pg_temp.assert((select count(*) from public.events) = 2, 'admin sees draf
 select pg_temp.assert((select count(*) from public.payments) = 2, 'admin sees all payments');
 select pg_temp.assert((select count(*) from public.academy_interest) = 1, 'admin reads leads');
 insert into public.events (slug, kind, title) values ('admin-made', 'competition', 'OK');
+update public.academy_interest set handled = true;
+do $$ begin
+  begin update public.academy_interest set name = 'Tampered';
+    raise exception 'ASSERT FAILED: admin edited submitted lead content';
+  exception when insufficient_privilege then null; end;
+  begin update public.academy_interest set handled_by = null;
+    raise exception 'ASSERT FAILED: admin forged handled_by';
+  exception when insufficient_privilege then null; end;
+end $$;
 reset role;
+select pg_temp.assert((select handled and handled_at is not null and handled_by = '00000000-0000-0000-0000-00000000000a' from public.academy_interest), 'lead stamped with admin + time');
+select pg_temp.assert((select name from public.academy_interest) = 'Kasun', 'lead content unchanged');
 
 \echo 'RLS tests passed'
