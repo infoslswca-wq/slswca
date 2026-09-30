@@ -11,7 +11,7 @@ Status: ✅ done in this repo · 🔜 next up · 🧑‍⚖️ needs a decision 
 | # | Finding | Severity | Status |
 |---|---|---|---|
 | L1 | Homepage is a single banner image and two social links. No nav, no copy, nothing for search engines to index. | Critical | ✅ replaced by the new site |
-| L2 | Battle and workshop gallery posts (`/battle-of-the-clubs-2024-*`, `/calisthenics-workshop-*`) only exist on WordPress. The new site links to them, so switching the domain over will break those links. | High | 🔜 migrate the galleries (see R6) |
+| L2 | Battle/workshop "galleries" on WordPress were Instagram embeds (15 reels/posts), not hosted photos. | High | ✅ moved to `/events/[slug]` with click-to-load embeds; all 9 old URLs 301/308 → new pages |
 | L3 | `/events-and-competitions` URL | Med | ✅ 301 → `/events` |
 
 ## 2. Design audit (Claude Design handoff)
@@ -20,6 +20,7 @@ Status: ✅ done in this repo · 🔜 next up · 🧑‍⚖️ needs a decision 
 | # | Finding | Status |
 |---|---|---|
 | D1 | `logo.png` is 1920×1080 with about 60% transparent padding. At the specified "60px tall", the wordmark actually shows at about 25px, and it relied on CSS `filter: invert(1)`. | ✅ cropped and pre-inverted to `logo-light.png`, shown at 32–36px |
+| D2b | Two workshop dates were inferred from WordPress URLs ("september-25" = Sep 2025 or 25 Sep?). | ✅ removed; 🧑‍⚖️ confirm exact dates for Sep & Oct (women's) workshops |
 | D2 | Every photo is a placeholder. The site has no real photography at all, and that's the biggest gap in visual quality. | 🧑‍⚖️ need a photo shoot or the BOC/workshop archive (R1) |
 | D3 | Partner mapping was guessed by the designer. Ministry and Sports-Medicine logos have no confirmed names. Clothing, Energy, H2O and Security partners have no logos. | 🧑‍⚖️ confirm (R2). Unknown names are left blank rather than invented. |
 | D4 | The home page "Backed by" row shows two empty placeholder tiles (Energy, Clothing). Empty tiles on a trust section look unfinished. | 🔜 hide unconfirmed partners before launch (R2) |
@@ -77,7 +78,8 @@ Status: ✅ done in this repo · 🔜 next up · 🧑‍⚖️ needs a decision 
 | R3 | Club directory: city, instagram, training spot → `/clubs/[slug]` pages | client → dev | 🧑‍⚖️ |
 | R4 | Backend: **Supabase** (decided 2026-09-30). Schema + RLS for members, clubs, events, registrations, payments, contributions and Academy leads, tested on local Postgres (`scripts/test-db.sh`). Academy leads are stored in Supabase. | dev | ✅ code · 🧑‍⚖️ create the Supabase project + keys |
 | R5 | Events as data (CMS/DB), with upcoming events and registration | dev | after R4 |
-| R6 | Migrate WordPress galleries → `/events/[slug]` with image galleries, 301s from old URLs | dev | 🔜 |
+| R6 | WordPress galleries → `/events/[slug]` (story, venue, clubs, Instagram media, SportsEvent JSON-LD, prev/next), legacy redirects kept in sync by test | dev | ✅ |
+| R6b | Real photo galleries: Instagram embeds only show what was posted; upload event photos to Supabase Storage for proper galleries + hero images | client → dev | 🧑‍⚖️ needs photos (R1) |
 | R7 | Deploy: Vercel (or Cloudflare) + DNS cutover plan, form delivery env (Resend or webhook), CI | dev + client | 🔜 |
 | R8 | i18n (Sinhala / Tamil) | client decision | 🧑‍⚖️ |
 | R9 | Payments: **PayHere** (decided 2026-09-30). Signed checkout, verified notify webhook (signature + amount match + no status downgrade), `/contribute` one-off/monthly page, thanks page. | dev | ✅ code · 🧑‍⚖️ PayHere sandbox merchant account, then live approval |

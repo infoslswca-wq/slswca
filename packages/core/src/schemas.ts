@@ -26,6 +26,13 @@ export const Partner = z.object({
 });
 export type Partner = z.infer<typeof Partner>;
 
+export const InstagramMedia = z.object({
+  kind: z.enum(["reel", "p"]),
+  id: z.string().regex(/^[A-Za-z0-9_-]{5,40}$/),
+});
+export type InstagramMedia = z.infer<typeof InstagramMedia>;
+export const instagramUrl = (m: InstagramMedia) => `https://www.instagram.com/${m.kind}/${m.id}/`;
+
 export const EventKind = z.enum(["competition", "workshop"]);
 export const Event = z.object({
   slug: Slug,
@@ -37,7 +44,9 @@ export const Event = z.object({
   venue: z.string().optional(),
   body: z.string(),
   clubs: z.array(z.string()).default([]),
-  mediaUrl: z.url().optional(),
+  /** Old WordPress path (without slashes), 301-redirected to /events/[slug]. */
+  legacySlug: Slug.optional(),
+  media: z.array(InstagramMedia).default([]),
   image: z.string().optional(),
   series: z.string().optional(), // e.g. "boc-2024"
   free: z.boolean().default(false),

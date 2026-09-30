@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { legacyEventRedirects } from "./legacy-redirects";
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -20,6 +21,8 @@ const csp = [
   "font-src 'self'",
   `connect-src 'self' ${supabaseOrigin} ${supabaseWs}`.trim(),
   "media-src 'self'",
+  // Instagram embeds on event pages (loaded only after the visitor clicks).
+  "frame-src https://www.instagram.com",
   "object-src 'none'",
   "base-uri 'self'",
   // PayHere checkout is a top-level form POST to their domain.
@@ -54,8 +57,11 @@ const nextConfig: NextConfig = {
     // Preserve old WordPress URLs so existing links / SEO don't 404.
     return [
       { source: "/events-and-competitions", destination: "/events", permanent: true },
-      // NOTE: battle/workshop gallery posts (/battle-of-the-clubs-2024-*, /calisthenics-workshop-*)
-      // still live on WordPress. Migrate them before DNS cutover — see AUDIT.md.
+      ...Object.entries(legacyEventRedirects).map(([from, to]) => ({
+        source: `/${from}`,
+        destination: `/events/${to}`,
+        permanent: true,
+      })),
     ];
   },
 };

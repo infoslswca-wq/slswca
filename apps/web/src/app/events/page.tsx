@@ -36,7 +36,7 @@ export default function EventsPage() {
                       <li key={c} className="border border-line-strong px-3 py-[5px] text-xs font-semibold tracking-[0.04em] text-muted">{c}</li>
                     ))}
                   </ul>
-                  {b.mediaUrl && <TextLink small href={b.mediaUrl}>View gallery</TextLink>}
+                  <TextLink small href={`/events/${b.slug}`}>{b.media.length ? "View gallery" : "Read more"}</TextLink>
                 </div>
               </li>
             ))}
@@ -59,7 +59,7 @@ export default function EventsPage() {
                     </span>
                   </div>
                   <p className="m-0 text-sm leading-[1.7] text-muted">{w.body}</p>
-                  {w.mediaUrl && <TextLink small href={w.mediaUrl}>View media</TextLink>}
+                  <TextLink small href={`/events/${w.slug}`}>{w.media.length ? "View media" : "Read more"}</TextLink>
                 </div>
               </li>
             ))}
