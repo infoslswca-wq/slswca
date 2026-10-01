@@ -15,8 +15,14 @@ function PartnerGrid({ items, tileBg }: { items: Partner[]; tileBg: string }) {
   return (
     <ul className="grid grid-cols-2 gap-5 nav:grid-cols-4">
       {items.map((p) => (
-        <li key={p.slug} data-reveal className={`flex flex-col items-center gap-4 border border-line px-6 py-7 text-center ${tileBg}`}>
-          <ImageSlot src={p.logo} alt={p.name ?? p.role} label={`${p.role} logo`} fit="contain" sizes="260px" className="h-[110px] w-full" />
+        <li key={p.slug} data-reveal className={`flex flex-col items-center gap-4 border px-6 py-7 text-center ${p.logo ? `border-line ${tileBg}` : "border-dashed border-line-strong"}`}>
+          {p.logo ? (
+            <ImageSlot src={p.logo} alt={p.name ?? ""} label={`${p.role} logo`} fit="contain" sizes="260px" className="h-[110px] w-full" />
+          ) : (
+            <a href="#partner-with-us" className="grid h-[110px] w-full place-items-center text-sm font-bold tracking-[0.06em] text-muted uppercase transition-colors hover:text-gold">
+              Become our {p.role.replace(/ Partner$/, "").toLowerCase()} partner →
+            </a>
+          )}
           <p className="text-xs font-bold tracking-[0.1em] text-gold uppercase">{p.role}</p>
         </li>
       ))}
@@ -59,7 +65,7 @@ export default function PartnersPage() {
         </Container>
       </section>
 
-      <Container data-reveal className="flex flex-col items-center gap-5 py-[72px] text-center">
+      <Container id="partner-with-us" data-reveal className="flex flex-col items-center gap-5 py-[72px] text-center">
         <Display className="text-[clamp(36px,4.5vw,60px)]" accent="us">Partner with</Display>
         <p className="m-0 max-w-[54ch] leading-relaxed text-muted">
           Share our passion for fitness, health, and community? Join the partners powering Sri Lankan calisthenics.

@@ -130,7 +130,7 @@ export function AcademyInterestForm() {
       </div>
 
       <label className="flex items-start gap-3 text-[13px] leading-relaxed text-muted">
-        <input name="consent" type="checkbox" className="mt-1 size-4 accent-gold" {...err("consent")} />
+        <input name="consent" type="checkbox" className="mt-0.5 size-5 shrink-0 cursor-pointer accent-gold" {...err("consent")} />
         <span>
           I agree that SLSWCA may store these details and contact me about Academy programmes. See our{" "}
           <Link href="/privacy" className="text-text underline decoration-gold underline-offset-2">privacy notice</Link>.

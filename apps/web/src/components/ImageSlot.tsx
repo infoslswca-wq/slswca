@@ -42,7 +42,12 @@ export function ImageSlot({
         className,
       )}
     >
-      <span className="text-[11px] font-semibold tracking-[0.1em] text-faint uppercase">{label}</span>
+      {process.env.NODE_ENV !== "production" ? (
+        <span className="text-[11px] font-semibold tracking-[0.1em] text-faint uppercase">{label}</span>
+      ) : (
+        // Until real photos arrive: a quiet brand mark instead of a wireframe caption.
+        <span className="m-auto block size-16 bg-[url(/mark-light.png)] bg-contain bg-center bg-no-repeat opacity-[0.07]" />
+      )}
     </div>
   );
 }

@@ -130,11 +130,11 @@ export function RegistrationForm({ slug, paid, feeLabel, categories, clubs, init
           {waiver.map((w) => <li key={w} className="flex gap-2.5"><span aria-hidden className="text-gold">—</span><span>{w}</span></li>)}
         </ul>
         <label className="flex items-start gap-3 text-[13px] leading-relaxed text-muted">
-          <input name="waiver" type="checkbox" className="mt-1 size-4 accent-gold" {...err("waiver")} />
+          <input name="waiver" type="checkbox" className="mt-0.5 size-5 shrink-0 cursor-pointer accent-gold" {...err("waiver")} />
           <span>I have read and accept the waiver.{m("waiver")}</span>
         </label>
         <label className="flex items-start gap-3 text-[13px] leading-relaxed text-muted">
-          <input name="adultOrGuardian" type="checkbox" className="mt-1 size-4 accent-gold" {...err("adultOrGuardian")} />
+          <input name="adultOrGuardian" type="checkbox" className="mt-0.5 size-5 shrink-0 cursor-pointer accent-gold" {...err("adultOrGuardian")} />
           <span>I am 18 or older, or my parent/guardian has agreed to this registration and waiver.{m("adultOrGuardian")}</span>
         </label>
       </fieldset>

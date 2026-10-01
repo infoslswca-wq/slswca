@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { site } from "@slswca/core/content";
-import { supabaseBrowser } from "@/lib/supabase/browser";
 import { cn } from "./ui";
 
 export function SiteNav() {
@@ -31,8 +30,8 @@ export function SiteNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-bg/92 backdrop-blur-md">
       <nav aria-label="Main" className="relative flex items-center justify-between gap-6 px-6 py-[18px] nav:px-10">
-        <Link href="/" className="flex items-center" aria-label="SLSWCA home">
-          <Image src="/logo-light.png" alt="" width={1891} height={441} priority className="h-8 w-auto nav:h-9" />
+        <Link href="/" className="flex min-h-11 items-center" aria-label="SLSWCA home">
+          <Image src="/logo-light.png" alt="" width={154} height={36} priority sizes="154px" className="h-8 w-auto nav:h-9" />
         </Link>
 
         <ul className="hidden items-center gap-7 text-sm font-semibold tracking-[0.04em] whitespace-nowrap uppercase menu:flex">
@@ -106,11 +105,20 @@ export function SiteNav() {
 function useSignedIn() {
   const [state, setState] = useState<boolean | null>(null);
   useEffect(() => {
-    const sb = supabaseBrowser();
-    if (!sb) return;
-    sb.auth.getSession().then(({ data }) => setState(Boolean(data.session)));
-    const { data } = sb.auth.onAuthStateChange((_e, session) => setState(Boolean(session)));
-    return () => data.subscription.unsubscribe();
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) return; // auth off: don't ship the client at all
+    let unsub: (() => void) | undefined;
+    let cancelled = false;
+    import("@/lib/supabase/browser").then(({ supabaseBrowser }) => {
+      const sb = supabaseBrowser();
+      if (!sb || cancelled) return;
+      sb.auth.getSession().then(({ data }) => !cancelled && setState(Boolean(data.session)));
+      const { data } = sb.auth.onAuthStateChange((_e, session) => setState(Boolean(session)));
+      unsub = () => data.subscription.unsubscribe();
+    });
+    return () => {
+      cancelled = true;
+      unsub?.();
+    };
   }, []);
   return state;
 }

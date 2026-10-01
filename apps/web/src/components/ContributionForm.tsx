@@ -167,11 +167,11 @@ export function ContributionForm({ cancelled = false }: { cancelled?: boolean })
 
       <div className="flex flex-col gap-3 text-[13px] leading-relaxed text-muted">
         <label className="flex items-start gap-3">
-          <input name="anonymous" type="checkbox" className="mt-1 size-4 accent-gold" />
+          <input name="anonymous" type="checkbox" className="mt-0.5 size-5 shrink-0 cursor-pointer accent-gold" />
           <span>Keep my contribution anonymous in any public thank-you.</span>
         </label>
         <label className="flex items-start gap-3">
-          <input name="consent" type="checkbox" className="mt-1 size-4 accent-gold" {...err("consent")} />
+          <input name="consent" type="checkbox" className="mt-0.5 size-5 shrink-0 cursor-pointer accent-gold" {...err("consent")} />
           <span>
             I agree SLSWCA may store these details to process my contribution and send a receipt. See our{" "}
             <Link href="/privacy" className="text-text underline decoration-gold underline-offset-2">privacy notice</Link>.

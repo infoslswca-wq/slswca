@@ -1,5 +1,6 @@
 import { fail, ok, originAllowed } from "@/lib/http";
 import { log } from "@/lib/observability";
+import { rateLimit } from "@/lib/rate-limit";
 import { authenticate } from "@/lib/supabase/server";
 
 /** Member cancels their own registration (DB function enforces ownership + not-yet-started). */
@@ -7,6 +8,7 @@ export async function POST(req: Request, ctx: RouteContext<"/api/v1/tickets/[cod
   const a = await authenticate(req);
   if (!a) return fail(401, "unauthorized", "Please sign in.");
   if (a.via === "cookie" && (!req.headers.get("origin") || !originAllowed(req))) return fail(403, "forbidden_origin", "Request origin not allowed.");
+  if (!(await rateLimit(`cancel:${a.user.id}`, 20, 10 * 60_000)).ok) return fail(429, "rate_limited", "Too many attempts.");
   const { code } = await ctx.params;
   if (!/^[a-f0-9]{24}$/.test(code)) return fail(400, "bad_ticket", "Invalid ticket.");
   const { data, error } = await a.db.rpc("cancel_my_registration", { p_ticket: code });

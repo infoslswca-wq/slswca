@@ -1,3 +1,4 @@
+import { jsonLd as safeJsonLd } from "@/lib/jsonld";
 import Link from "next/link";
 import type { UpcomingEvent } from "@slswca/core/schemas";
 import { site } from "@slswca/core/content";
@@ -69,7 +70,7 @@ export function UpcomingEventDetail({ e, state, spotsLeft }: { e: UpcomingEvent;
           <p className="m-0 text-xs leading-relaxed text-faint">You&apos;ll need a free SLSWCA account. Your ticket appears in your account and the app.</p>
         </aside>
       </Container>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
     </>
   );
 }

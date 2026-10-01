@@ -3,6 +3,7 @@ import { DeleteAccountInput, ProfileUpdate, type Me } from "@slswca/core/schemas
 import { BAD_JSON, TOO_LARGE, fail, ok, originAllowed, readJson } from "@/lib/http";
 import { UnknownClub, loadMe, updateProfile } from "@/lib/me";
 import { authenticate, supabaseAdmin, type Authed } from "@/lib/supabase/server";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,7 @@ export async function PATCH(req: Request) {
   const a = await authenticate(req);
   if (!a) return unauthorized();
   if (!csrfOk(req, a)) return fail(403, "forbidden_origin", "Request origin not allowed.");
+  if (!(await rateLimit(`me:${a.user.id}`, 30, 10 * 60_000)).ok) return fail(429, "rate_limited", "Too many updates. Try again shortly.");
   const body = await readJson(req, 4096);
   if (body === TOO_LARGE || body === BAD_JSON) return fail(400, "bad_request", "Malformed request.");
   const parsed = ProfileUpdate.safeParse(body);

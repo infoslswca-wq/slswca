@@ -1,10 +1,13 @@
-import { fail, ok } from "@/lib/http";
+import { clientIp, fail, ok } from "@/lib/http";
+import { rateLimit } from "@/lib/rate-limit";
 import { NotConfigured, paymentStatus } from "@/lib/payments";
 
 export const dynamic = "force-dynamic";
 
 /** Status for the "thanks" screen. Order ids are unguessable; only status/amount are exposed. */
 export async function GET(req: Request) {
+  // The thanks page polls ~10x; cap guessing of order ids.
+  if (!(await rateLimit(`paystatus:${clientIp(req)}`, 60, 10 * 60_000)).ok) return fail(429, "rate_limited", "Slow down.");
   const order = new URL(req.url).searchParams.get("order") ?? "";
   if (!/^[A-Z0-9-]{8,50}$/.test(order)) return fail(400, "bad_order", "Invalid order.");
   try {

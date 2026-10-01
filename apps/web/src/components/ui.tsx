@@ -86,7 +86,7 @@ export function Button({ variant = "primary", className, ...p }: ComponentProps<
 
 export function TextLink({ href, children, small = false, className }: { href: string; children: ReactNode; small?: boolean; className?: string }) {
   const cls = cn(
-    "inline-block self-start border-b-2 border-gold font-bold tracking-[0.06em] text-text uppercase transition-colors hover:text-gold",
+    "relative inline-block self-start border-b-2 border-gold font-bold tracking-[0.06em] text-text uppercase transition-colors hover:text-gold after:absolute after:inset-x-0 after:-inset-y-2.5 after:content-['']",
     small ? "pb-[3px] text-[13px]" : "pb-1 text-sm",
     className,
   );

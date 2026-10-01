@@ -1,3 +1,4 @@
+import { jsonLd as safeJsonLd } from "@/lib/jsonld";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -89,7 +90,7 @@ export default async function EventPage({ params }: PageProps<"/events/[slug]">)
         {newer ? <Link href={`/events/${newer.slug}`} className="text-sm font-bold tracking-[0.06em] uppercase hover:text-gold">{newer.title} →</Link> : <ButtonLink href="/events" variant="secondary">All events</ButtonLink>}
       </Container>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
     </>
   );
 }

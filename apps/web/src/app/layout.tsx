@@ -1,3 +1,4 @@
+import { jsonLd as safeJsonLd } from "@/lib/jsonld";
 import type { Metadata, Viewport } from "next";
 import { Anton, Archivo } from "next/font/google";
 import { site } from "@slswca/core/content";
@@ -48,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <main id="main">{children}</main>
         <SiteFooter />
         <Motion />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(orgJsonLd) }} />
       </body>
     </html>
   );

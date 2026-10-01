@@ -11,7 +11,8 @@ const stats = [
 
 const marquee = "Strength ✕ Discipline ✕ Community ✕ Sri Lanka ✕ Street Workout ✕ Calisthenics ✕ ".repeat(2);
 
-const backedBy = ["wswcf", "ministry", "energy", "clothing"].map((s) => partners.find((p) => p.slug === s)!);
+// Only partners with a logo; empty tiles on a trust section look unfinished.
+const backedBy = partners.filter((p) => p.logo).slice(0, 4);
 
 export default function HomePage() {
   return (
@@ -95,7 +96,7 @@ export default function HomePage() {
             {clubs.map((c) => (
               <li
                 key={c.slug}
-                className="border border-text/35 px-[22px] py-3 font-display text-[17px] tracking-[0.06em] uppercase transition-colors hover:border-text hover:bg-text hover:text-maroon"
+                className="border border-text/35 px-[22px] py-3 font-display text-[17px] tracking-[0.06em] uppercase"
               >
                 {c.name}
               </li>
@@ -112,7 +113,7 @@ export default function HomePage() {
         <ul className="grid grid-cols-2 gap-4 nav:grid-cols-4">
           {backedBy.map((p) => (
             <li key={p.slug} data-reveal className="flex flex-col items-center gap-3.5 border border-line bg-surface p-6 text-center">
-              <ImageSlot src={p.logo} alt={p.name ?? p.role} label={`${p.role} logo`} fit="contain" sizes="240px" className="h-[90px] w-full" />
+              <ImageSlot src={p.logo} alt={p.name ?? ""} label={`${p.role} logo`} fit="contain" sizes="240px" className="h-[90px] w-full" />
               <p className="text-xs font-bold tracking-[0.1em] text-muted uppercase">{p.role}</p>
             </li>
           ))}
