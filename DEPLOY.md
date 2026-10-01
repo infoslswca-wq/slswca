@@ -12,13 +12,14 @@ Everything on free tiers. The old WordPress site stays live until switch-over.
 | Payments | PayHere (sandbox first) |
 
 ## 1. Accounts (client)
-- [ ] GitHub organisation (e.g. `slswca`); add account to CLI with `gh auth login` / `gh auth switch`
+- [x] GitHub: https://github.com/infoslswca-wq/slswca (pushes bound to infoslswca-wq for this repo only)
 - [ ] Supabase project → Project URL, publishable/anon key, service role key, DB connection string
 - [ ] Vercel account (sign in with GitHub)
 - [ ] PayHere sandbox merchant (sandbox.payhere.lk)
 
 ## 2. Test deploy on *.vercel.app
-- [ ] Push repo to GitHub org; import into Vercel (settings above)
+- [x] Push repo to GitHub
+- [ ] Import into Vercel (settings above)
 - [ ] `supabase db push` (migrations) + `supabase/seed.sql`
 - [ ] Vercel env vars from `apps/web/.env.example` (`NEXT_PUBLIC_SITE_URL` = vercel URL for now, `PAYHERE_SANDBOX=true`)
 - [ ] Supabase → Auth → URL configuration: add Vercel URL + `/auth/callback`; paste `supabase/templates/otp.html` into "Magic Link" and "Confirm signup" templates
