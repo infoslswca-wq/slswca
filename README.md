@@ -24,7 +24,7 @@ Database: `supabase/migrations` (apply with `supabase db push` once the project 
 
 Copy `apps/web/.env.example` to `apps/web/.env.local` and configure one form-delivery channel (Resend or a webhook). In development, submissions are only logged.
 
-See [AUDIT.md](AUDIT.md) for the design/site audit and the roadmap.
+See [AUDIT.md](AUDIT.md) for the original design audit + roadmap, and [docs/audit-2026-10.md](docs/audit-2026-10.md) for the live-site UI/UX + security audit.
 
 ## Running an event (committee)
 
